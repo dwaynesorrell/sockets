@@ -1,0 +1,1008 @@
+From taco!gatech!darwin.sura.net!jvnc.net!yale.edu!think.com!hsdndev!morrow.stanford.edu!decwrl!pa.dec.com!vixie Mon Dec 16 12:35:25 EST 1991
+Article: 1815 of comp.sources.unix
+Path: taco!gatech!darwin.sura.net!jvnc.net!yale.edu!think.com!hsdndev!morrow.stanford.edu!decwrl!pa.dec.com!vixie
+From: vixie@pa.dec.com (Paul Vixie)
+Newsgroups: comp.sources.unix
+Subject: v25i034: sockdemo - demo for berkeley socket interface
+Message-ID: <1991Dec14.041006.29560@PA.dec.com>
+Date: 14 Dec 91 04:10:06 GMT
+Sender: news@PA.dec.com (News)
+Organization: DEC Palo Alto
+Lines: 993
+Approved: vixie@pa.dec.com
+
+Submitted-By: Blair P Houghton <bhoughto@pima.intel.com>
+Posting-Number: Volume 25, Issue 34
+Archive-Name: sockdemo
+
+This package is intended for demonstration and education.
+I've tried to keep the demos as simple as possible while
+implementing the basic functioning of Unix and Internet
+sockets.
+
+#! /bin/sh
+# This is a shell archive.  Remove anything before this line, then unpack
+# it by saving it into a file and typing "sh file".  To overwrite existing
+# files, type "sh file -c".  You can also feed this as standard input via
+# unshar, or by typing "sh <file", e.g..  If this archive is complete, you
+# will see the following message at the end:
+#		"End of archive 1 (of 1)."
+# Contents:  MANIFEST Makefile README disockl.c disockt.c isockl.c
+#   isockt.c sockl.c sockl.h sockl.nroff-man sockt.c
+# Wrapped by vixie@cognition.pa.dec.com on Fri Dec 13 14:15:36 1991
+PATH=/bin:/usr/bin:/usr/ucb ; export PATH
+if test -f 'MANIFEST' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'MANIFEST'\"
+else
+echo shar: Extracting \"'MANIFEST'\" \(455 characters\)
+sed "s/^X//" >'MANIFEST' <<'END_OF_FILE'
+X   File Name		Archive #	Description
+X-----------------------------------------------------------
+X MANIFEST                   1	This shipping list
+X Makefile                   1	
+X README                     1	
+X disockl.c                  1	
+X disockt.c                  1	
+X isockl.c                   1	
+X isockt.c                   1	
+X sockl.c                    1	
+X sockl.h                    1	
+X sockl.nroff-man            1	
+X sockt.c                    1	
+END_OF_FILE
+if test 455 -ne `wc -c <'MANIFEST'`; then
+    echo shar: \"'MANIFEST'\" unpacked with wrong size!
+fi
+# end of 'MANIFEST'
+fi
+if test -f 'Makefile' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'Makefile'\"
+else
+echo shar: Extracting \"'Makefile'\" \(1275 characters\)
+sed "s/^X//" >'Makefile' <<'END_OF_FILE'
+X# Makefile for socket demo collection
+X#(C) 1991 Blair P. Houghton, All Rights Reserved, copying and
+X#distribution permitted with copyright intact.
+X
+X# gcc screws up gethostbyname() with my library; try it on yours
+X#CC = gcc -ansi -pedantic -Wall
+X
+X# debugging is more fun if the symbols and trace-hooks are intact...
+CFLAGS = -g
+X
+X# shar'ring is rather specific to the sort of shar(1local) one possesses...
+SHAR = /usr/local/bin/xshar -vsMDc
+X#SHAR = shar
+X
+all: disock isock sock
+X
+X
+X# unix-local-connection example
+sock: sockl sockt
+X
+sockl: sockl.c sockl.h
+X	$(CC) $(CFLAGS) -o sockl sockl.c
+X
+sockt: sockt.c sockl.h
+X	$(CC) $(CFLAGS) -o sockt sockt.c
+X
+sockl.h:
+X
+X
+X# internet-connection example
+isock: isockl isockt
+X
+isockl: isockl.c
+X	$(CC) $(CFLAGS) -o isockl isockl.c
+X
+isockt: isockt.c
+X	$(CC) $(CFLAGS) -o isockt isockt.c
+X
+X
+X# internet-connection example using disconnected transmittal
+disock: disockl disockt
+X
+disockl: disockl.c
+X	$(CC) $(CFLAGS) -o disockl disockl.c
+X
+disockt: disockt.c
+X	$(CC) $(CFLAGS) -o disockt disockt.c
+X
+X
+man: sockl.1
+X	nroff -man sockl.nroff-man > sockl.1
+sockl.1:
+X
+X
+shar:
+X	$(SHAR) README sockl.nroff-man Makefile		\
+sockl.c sockt.c isockl.c isockt.c disockl.c disockt.c	\
+sockl.h > sockl.shar
+X
+X
+clean:
+X	rm -f sockl sockt isockl isockt disockl disockt sockl.1
+END_OF_FILE
+if test 1275 -ne `wc -c <'Makefile'`; then
+    echo shar: \"'Makefile'\" unpacked with wrong size!
+fi
+# end of 'Makefile'
+fi
+if test -f 'README' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'README'\"
+else
+echo shar: Extracting \"'README'\" \(2533 characters\)
+sed "s/^X//" >'README' <<'END_OF_FILE'
+X/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+X/* distribution permitted with copyright intact.		*/
+X
+This package is intended for demonstration and education.
+I've tried to keep the demos as simple as possible while
+implementing the basic functioning of Unix and Internet
+sockets.
+X
+Socket demo programs:
+X
+X    sockl:	Socket Listener.  Creates an AF_UNIX socket (one handled
+X		only by the local kernel), listens for and accepts a
+X		SOCK_STREAM (reliable, file-i/o-like) connection, and
+X		prints the sent data to stdout.  No arguments.  Initially
+X		prints data including the port number to be given on the
+X		command line when starting sockt.
+X    sockt:      Socket Talker.  Connects to an AF_UNIX port given as
+X		argument and sends a few lines of text.  The connection
+X		is of SOCK_STREAM type.  (This program is impressively
+X		simple).
+X
+X    isockl:     Internet Socket Listener.  Like sockl.c, but opens an
+X		AF_INET socket (an Internet communications channel,
+X		handled by the ethernet driver).
+X    isockt:     Internet Socket Talker.  Like sockt, but takes a machine
+X		name as first argument and port number as second argument.
+X
+X    disockl:    Datagram Internet Socket Listener.  Like isockl, but the
+X		communications style is SOCK_DGRAM.
+X    disockt:    Datagram Internet Socket Talker.  Like isockt, but the
+X		communications style is SOCK_DGRAM.
+X
+Make targets include the names of the programs, plus "all",
+X"man", "shar", and "clean."  The sources are compiled by
+default with your make(1)'s default cc(1), but can be
+compiled with GNU's gcc in pedantic ANSI mode; however, gcc
+will use whatever (possibly flakey) library it's been
+installed with, so check the results carefully if you do
+use gcc.  It's also compiled cleanly under some real ANSI
+compilers.
+X
+Sockets aren't the most portable of code (in fact, ANSI C
+makes no provision for them).  These demos were developed
+under Ultrix and tested on HP/Apollo BSD.  I fixed some
+X#include's so it would compile on both systems.
+X
+The results when the programs are run are okay on Ultrix
+but disockl bombs immediately on the Apollo; and, strings
+sent over the sockets on the Apollo have grot on the end.
+This was the expected result of the experiment; it has to
+do with the fact that Ultrix and Apollo use different
+structures and semantics for socket data.  If you're using
+Apollos or some other system and these programs don't work
+out of the box, try hacking them to use the TCP/IP structs
+implemented for your machine.
+X
+X				--Blair
+X				  "Class dismissed."
+END_OF_FILE
+if test 2533 -ne `wc -c <'README'`; then
+    echo shar: \"'README'\" unpacked with wrong size!
+fi
+# end of 'README'
+fi
+if test -f 'disockl.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'disockl.c'\"
+else
+echo shar: Extracting \"'disockl.c'\" \(3204 characters\)
+sed "s/^X//" >'disockl.c' <<'END_OF_FILE'
+X/* sockl.c -- set up an INTERNET DGRAM socket and listen on it */
+X/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+X/* distribution permitted with copyright intact.		*/
+X
+X/* a DGRAM receiver is thoroughly independent of the sender */
+X
+X#include <stdio.h>
+X#include <sys/types.h>
+X#include <sys/socket.h>
+X#include <netinet/in.h>
+X#include <fcntl.h>
+X
+X#ifdef __STDC__
+extern void	exit( int );
+extern void	perror( char * );
+extern int	printf( char *, ... );
+extern int	bind( int, struct sockaddr *, int );
+extern int	socket( int, int, int );
+extern int	read( int, char *, unsigned );
+extern char *	strcpy( char *, char *b );
+extern int	fcntl( int, int, int );
+extern int	accept( int, struct sockaddr *, int * );
+extern int	listen( int, int );
+extern int	unlink( char * );
+extern int	getsockname( int, struct sockaddr *, int * );
+extern int	recvfrom( int, char *, int, int, struct sockaddr *, int );
+X
+void main( int argc, char *argv[] )
+X#else
+main( argc, argv )
+int argc; char *argv[];
+X#endif
+X{
+X    int sock;				/* fd for the socket */
+X    struct sockaddr_in sockaddr;	/* sytem's location of the socket */
+X    struct sockaddr_in caller;		/* id of foreign calling process */
+X    int sockaddr_in_length = sizeof(struct sockaddr_in);
+X    char buf[BUFSIZ];
+X    int read_ret;
+X    int fromlen = sizeof(struct sockaddr_in);
+X    char acknowledgement[BUFSIZ];
+X
+X    /*
+X     *  open a net socket, using dgram (packetized, nonconnected)
+X     *  mode, with protocol irrelevant ( == 0 )
+X     */
+X    if ( (sock = socket( AF_INET, SOCK_DGRAM, 0 )) < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't assign fd for socket", argv[0] );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X   /*
+X    *  register the socket
+X    */
+X    sockaddr.sin_family = AF_INET;
+X    sockaddr.sin_addr.s_addr = INADDR_ANY;	/* not choosy about who calls */
+X    sockaddr.sin_port = 0;			/* ??? why 0? */
+X
+X    if ( bind( sock, (struct sockaddr *) &sockaddr, sizeof sockaddr ) < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't bind socket (%d)", argv[0], sock );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X   /*
+X    *  get port number
+X    */
+X    if ( getsockname(sock, (struct sockaddr *) &sockaddr, (int *)&sockaddr_in_length)
+X	 < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't get port number of socket (%d)",
+X		argv[0], sock );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X    printf("opened socket as fd (%d) on port (%d) for dgram i/o\n",
+X	    sock, ntohs(sockaddr.sin_port) );
+X
+X    printf(
+X"struct sockaddr_in {\n\
+X    sin_family		= %d\n\
+X    sin_addr.s_addr	= %d\n\
+X    sin_port		= %d\n\
+X} sockaddr;\n"
+X, sockaddr.sin_family
+X, sockaddr.sin_addr.s_addr
+X, ntohs(sockaddr.sin_port)
+X    );
+X    fflush(stdout);
+X
+X    /* read and print lines until the cows come home */
+X    while ( (read_ret = recvfrom( sock, buf, sizeof buf,
+X				  0, (struct sockaddr *) &caller,
+X				  sizeof caller)
+X	    ) > 0 ) {
+X	printf( "%s: read (from caller (%s, %d)) socket as follows:\n(%s)\n",
+X		argv[0],
+X		inet_ntoa(caller.sin_addr),
+X		ntohs(caller.sin_port),
+X		buf ); 
+X	fflush(stdout);
+X    }
+X
+X    if ( read_ret < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: error reading socket", argv[0] );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X    /* loop ended normally:  read() returned NULL */
+X    exit(0);
+X}
+END_OF_FILE
+if test 3204 -ne `wc -c <'disockl.c'`; then
+    echo shar: \"'disockl.c'\" unpacked with wrong size!
+fi
+# end of 'disockl.c'
+fi
+if test -f 'disockt.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'disockt.c'\"
+else
+echo shar: Extracting \"'disockt.c'\" \(2867 characters\)
+sed "s/^X//" >'disockt.c' <<'END_OF_FILE'
+X/* disockt.c -- open an internet socket and talk dgrams into it */
+X/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+X/* distribution permitted with copyright intact.		*/
+X
+X#include <stdio.h>
+X#include <sys/types.h>
+X#include <sys/socket.h>
+X#include <netinet/in.h>
+X#include <netdb.h>
+X#include <math.h>
+X
+X#ifdef __STDC__
+extern void	perror( char * );
+extern int	bind( int, struct sockaddr *, int );
+extern int	socket( int, int, int );
+extern int	write( int, char *, unsigned );
+extern char *	strcpy( char *, char *b );
+extern int	strlen( char * );
+extern void	exit( int );
+extern int	connect( int, struct sockaddr *, int );
+extern struct hostent *	gethostbyname( char * );
+extern int	fprintf( FILE *, char *, ... );
+extern int	atoi( char * );
+extern void	bcopy( char *, char *b, int );
+X#endif
+X
+char *line[] = {
+X    "Mary had a little lamb;\n",
+X    "Its fleece was white as snow;\n",
+X    "And everywhere that Mary went,\n",
+X    "She told everyone that Edison invented\nthe telephone before Bell did.\n"
+X};
+int n_line = 4;
+X
+X/*
+X *  argv 0 is program name; argv 1 is remote host; argv 2 is
+X *  port number of listener on remote host
+X */
+X#ifdef __STDC__
+void main( int argc, char *argv[] )
+X#else
+main(argc,argv)
+int argc; char *argv[];
+X#endif
+X{
+X
+X    int plug;				/* socket to "plug" into the socket */
+X    struct sockaddr_in socketname;	/* mode, addr, and port	*/
+X					/* data for the socket	*/
+X    struct hostent *remote_host;	/* internet numbers, names */
+X    extern int n_line;
+X    extern char *line[];
+X    char buf[BUFSIZ];
+X    int i, sendflags;
+X
+X    /* make an internet-transmitted, dgram-i/o-style, protocol-whatever plug */
+X    if ( (plug = socket( AF_INET, SOCK_DGRAM, 0 )) < 0 )
+X	perror(argv[0]);
+X
+X    /* plug it into the listening socket */
+X    socketname.sin_family = AF_INET;
+X    if ( (remote_host = gethostbyname( argv[1] )) == (struct hostent *)NULL ) {
+X	fprintf( stderr, "%s: unknown host: %s\n",
+X		 argv[0], argv[1] );
+X	exit(__LINE__);
+X    }
+X    (void) bcopy( (char *)remote_host->h_addr, (char *) &socketname.sin_addr,
+X		  remote_host->h_length );
+X    socketname.sin_port = htons(atoi(argv[2]));
+X
+X    printf("sending %d dgrams to:\n", n_line);
+X    printf(
+X"struct sockaddr_in {\n\
+X    sin_family		= %d\n\
+X    sin_addr.s_addr	= %s\n\
+X    sin_port 		= %d\n\
+X} socketname;\n"
+X, socketname.sin_family
+X, inet_ntoa(socketname.sin_addr)
+X/* , socketname.sin_addr.s_addr -- gives unsigned long, not struct in_addr */
+X, ntohs(socketname.sin_port)
+X    );
+X
+X    /* say something into it; something historic */
+X    sendflags = 0;
+X    for ( i = 0; i < n_line; i++ ) {
+X	sleep(1);
+X	if ( sendto( plug,
+X		     line[i], 1+strlen(line[i]),
+X		     sendflags,
+X		     (struct sockaddr *)&socketname, sizeof socketname )
+X	     < 0 ) {
+X	    perror(argv[0]);
+X	    exit(__LINE__);
+X	}
+X    }
+X    
+X    /* all the socket connections are closed automatically */
+X    exit(0);
+X}
+END_OF_FILE
+if test 2867 -ne `wc -c <'disockt.c'`; then
+    echo shar: \"'disockt.c'\" unpacked with wrong size!
+fi
+# end of 'disockt.c'
+fi
+if test -f 'isockl.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'isockl.c'\"
+else
+echo shar: Extracting \"'isockl.c'\" \(4065 characters\)
+sed "s/^X//" >'isockl.c' <<'END_OF_FILE'
+X/* isockl.c -- set up an INTERNET STREAM socket and listen on it */
+X/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+X/* distribution permitted with copyright intact.		*/
+X
+X/* a stream (a socket opened using SOCK_STREAM) requires the use of
+listen() and accept() in a receiver, and connect() in a sender */
+X
+X#include <stdio.h>
+X#include <sys/types.h>
+X#include <sys/socket.h>
+X#include <netinet/in.h>
+X#include <fcntl.h>
+X
+X#ifdef __STDC__
+extern void	exit( int );
+extern void	perror( char * );
+extern int	printf( char *, ... );
+extern int	bind( int, struct sockaddr *, int );
+extern int	socket( int, int, int );
+extern int	read( int, char *, unsigned );
+extern char *	strcpy( char *, char *b );
+extern int	fcntl( int, int, int );
+extern int	accept( int, struct sockaddr *, int * );
+extern int	listen( int, int );
+extern int	unlink( char * );
+extern int	getsockname( int, struct sockaddr *, int * );
+X
+void main( int argc, char *argv[] )
+X#else
+main( argc, argv )
+int argc; char *argv[];
+X#endif
+X{
+X    int sock;				/* fd for the listening socket */
+X    int ear;				/* fd for the working socket */
+X    struct sockaddr_in sockaddr;	/* sytem's location of the socket */
+X    struct sockaddr_in caller;		/* id of foreign calling process */
+X    int sockaddr_in_length = sizeof(struct sockaddr_in);
+X    char buf[BUFSIZ];
+X    int read_ret;
+X    int fromlen = sizeof(struct sockaddr_in);
+X    char acknowledgement[BUFSIZ];
+X
+X    /*
+X     *  open a net socket, using stream (file-style i/o)
+X     *  mode, with protocol irrelevant ( == 0 )
+X     */
+X    if ( (sock = socket( AF_INET, SOCK_STREAM, 0 )) < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't assign fd for socket", argv[0] );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X   /*
+X    *  register the socket
+X    */
+X    sockaddr.sin_family = AF_INET;
+X    sockaddr.sin_addr.s_addr = INADDR_ANY;	/* not choosy about who calls */
+X    sockaddr.sin_port = 0;
+X
+X    if ( bind( sock, (struct sockaddr *) &sockaddr, sizeof sockaddr ) < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't bind socket (%d)", argv[0], sock );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X   /*
+X    *  get port number
+X    */
+X    if ( getsockname( sock, (struct sockaddr *) &sockaddr,
+X		      (int *)&sockaddr_in_length )
+X	 < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't get port number of socket (%d)",
+X		argv[0], sock );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X    printf("opened socket as fd (%d) on port (%d) for stream i/o\n",
+X	    sock, ntohs(sockaddr.sin_port) );
+X
+X    printf(
+X"struct sockaddr_in {\n\
+X    sin_family		= %d\n\
+X    sin_addr.s_addr	= %d\n\
+X    sin_port		= %d\n\
+X} sockaddr;\n"
+X, sockaddr.sin_family
+X, sockaddr.sin_addr.s_addr
+X, ntohs(sockaddr.sin_port)
+X    );
+X
+X
+X    /* put an ear to the socket, listening for a knock-knock-knocking */
+X    listen( sock, 1 );				/* 1: only one queue slot */
+X    /* ear will be a temporary (non-reusable) socket different from sock */
+X    if ( (ear = accept( sock, (struct sockaddr *)&caller, &fromlen )) < 0 ) {
+X	perror(argv[0]);
+X	exit(__LINE__);
+X    }
+X
+X    /* print calling process' identification */
+X    printf(
+X"struct sockaddr_in {\n\
+X    sin_family		= %d\n\
+X    sin_addr.s_addr	= %s\n\
+X    sin_port (!!!)	= %d\n\
+X} caller;\n"
+X, caller.sin_family
+X, inet_ntoa(caller.sin_addr)
+X/* , caller.sin_addr.s_addr -- gives an unsigned long, not a struct in_addr */
+X, ntohs(caller.sin_port)
+X    );
+X
+X    /* optional ack; demonstrates bidirectionality */
+X    gethostname(buf, sizeof buf);
+X    sprintf( acknowledgement, "Welcome, from sunny %s (%s.%d)\n",
+X		buf,
+X		buf,
+X		ntohs(sockaddr.sin_port)
+X	    );
+X    /* write into the ear; the sock is _only_for_rendezvous_ */
+X    if ( write ( ear, acknowledgement, sizeof acknowledgement ) < 1 )
+X	perror(argv[0]);
+X
+X    /* read lines until the stream closes */
+X    while ( (read_ret = read( ear, buf, sizeof buf )) > 0 )
+X	printf( "%s: read from socket as follows:\n(%s)\n", argv[0], buf ); 
+X
+X    if ( read_ret < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: error reading socket", argv[0] );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X    /* loop ended normally:  read() returned NULL */
+X    exit(0);
+X}
+END_OF_FILE
+if test 4065 -ne `wc -c <'isockl.c'`; then
+    echo shar: \"'isockl.c'\" unpacked with wrong size!
+fi
+# end of 'isockl.c'
+fi
+if test -f 'isockt.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'isockt.c'\"
+else
+echo shar: Extracting \"'isockt.c'\" \(2589 characters\)
+sed "s/^X//" >'isockt.c' <<'END_OF_FILE'
+X/* isockt.c -- open an internet socket and talk into it */
+X/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+X/* distribution permitted with copyright intact.		*/
+X
+X#include <stdio.h>
+X#include <sys/types.h>
+X#include <sys/socket.h>
+X#include <netinet/in.h>
+X#include <netdb.h>
+X#include <math.h>
+X
+X#ifdef __STDC__
+extern void	perror( char * );
+extern int	bind( int, struct sockaddr *, int );
+extern int	socket( int, int, int );
+extern int	write( int, char *, unsigned );
+extern char *	strcpy( char *, char *b );
+extern int	strlen( char * );
+extern void	exit( int );
+extern int	connect( int, struct sockaddr *, int );
+extern struct hostent *	gethostbyname( char * );
+extern int	fprintf( FILE *, char *, ... );
+extern int	atoi( char * );
+extern void	bcopy( char *, char *b, int );
+X#endif
+X
+char *line[] = {
+X    "Mary had a little lamb;\n",
+X    "Its fleece was white as snow;\n",
+X    "And everywhere that Mary went,\n",
+X    "She told everyone that Edison invented\nthe telephone before Bell did.\n"
+X};
+int n_line = 4;
+X
+X/*
+X *  arg 0 is program name; arg 1 is remote host; arg 2 is
+X *  port number of listener on remote host
+X */
+X#ifdef __STDC__
+void main( int argc, char *argv[] )
+X#else
+main(argc,argv)
+int argc; char *argv[];
+X#endif
+X{
+X
+X    int plug;				/* socket to "plug" into the socket */
+X    struct sockaddr_in socketname;	/* mode, addr, and port data for the socket */
+X    struct hostent *remote_host;	/* internet numbers, names */
+X    extern int n_line;
+X    extern char *line[];
+X    char buf[BUFSIZ];
+X    int i;
+X
+X    /* make an internet-transmitted, file-i/o-style, protocol-whatever plug */
+X    if ( (plug = socket( AF_INET, SOCK_STREAM, 0 )) < 0 )
+X	perror(argv[0]);
+X
+X    /* plug it into the listening socket */
+X    socketname.sin_family = AF_INET;
+X    if ( (remote_host = gethostbyname( argv[1] )) == (struct hostent *)NULL ) {
+X	fprintf( stderr, "%s: unknown host: %s\n",
+X		 argv[0], argv[1] );
+X	exit(__LINE__);
+X    }
+X    (void) bcopy( (char *)remote_host->h_addr, (char *) &socketname.sin_addr,
+X		  remote_host->h_length );
+X    socketname.sin_port = htons(atoi(argv[2]));
+X
+X    if ( connect( plug, (struct sockaddr *) &socketname,
+X		  sizeof socketname ) < 0 ) {
+X	perror(argv[0]);
+X	exit(__LINE__);
+X    }
+X
+X    /* wait for ack */
+X    if ( read( plug, buf, sizeof buf ) > 0 )
+X	printf(buf);
+X
+X    /* say something into it; something historic */
+X    for ( i = 0; i < n_line; i++ ) {
+X	sleep(1);
+X	if ( write( plug, line[i], strlen(line[i]) ) < 0 ) {
+X	    perror(argv[0]);
+X	    exit(__LINE__);
+X	}
+X    }
+X    
+X    /* all the socket connections are closed automatically */
+X    exit(0);
+X}
+END_OF_FILE
+if test 2589 -ne `wc -c <'isockt.c'`; then
+    echo shar: \"'isockt.c'\" unpacked with wrong size!
+fi
+# end of 'isockt.c'
+fi
+if test -f 'sockl.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'sockl.c'\"
+else
+echo shar: Extracting \"'sockl.c'\" \(3092 characters\)
+sed "s/^X//" >'sockl.c' <<'END_OF_FILE'
+X/* sockl.c -- set up a UNIX STREAM socket and listen on it */
+X/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+X/* distribution permitted with copyright intact.		*/
+X
+X/* a stream (a socket opened using SOCK_STREAM) requires the use of
+listen() and accept() in a receiver, and connect() in a sender */
+X
+X#include <stdio.h>
+X#include <sys/types.h>
+X#include <sys/socket.h>
+X#include <sys/un.h>
+X#include <fcntl.h>
+X/* include sockl.h only after <sys/socket.h> */
+X#include "sockl.h" 
+X
+X#ifdef __STDC__
+extern void	exit( int );
+extern void	perror( char * );
+extern int	printf( char *, ... );
+extern int	bind( int, struct sockaddr *, int );
+extern int	socket( int, int, int );
+extern int	read( int, char *, unsigned );
+extern char *	strcpy( char *, char *b );
+extern int	fcntl( int, int, int );
+extern int	accept( int, struct sockaddr *, int * );
+extern int	listen( int, int );
+extern int	unlink( char * );
+X
+void main( int argc, char *argv[] )
+X#else
+main(argc,argv)
+int argc; char *argv[];
+X#endif
+X{
+X    int sock;				/* fd for the actual socket */
+X    int ear;				/* fd for the working socket */
+X    struct sockaddr_un sockaddr;	/* sytem's location of the socket */
+X    char buf[BUFSIZ];
+X    int read_ret;
+X    int f_ret;
+X
+X    /*
+X     *  open a unix (local) socket, using stream (file-style i/o)
+X     *  mode, with protocol irrelevant ( == 0 ) (the protocol is
+X     *  generally determined by the connection style: tcp for stream,
+X     *  udp for datagrams, but this is not immutable nor all the
+X     *  protocols for these styles).
+X     */
+X    if ( (sock = socket( AF_UNIX, SOCK_STREAM, 0 )) < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't assign fd for socket", argv[0] );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X    /* place a filename in the filesystem for other processes to find */
+X    sockaddr.sun_family = AF_UNIX;
+X    (void) strcpy( sockaddr.sun_path, SOCKET_PATH_NAME );
+X
+X    if ( bind( sock, (struct sockaddr *) &sockaddr, sizeof sockaddr ) < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: can't bind socket (%d) to pathname (%s)",
+X		argv[0], sock, sockaddr.sun_path );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X    printf("opened socket as fd (%d) at path (%s) for stream i/o\n",
+X	    sock, sockaddr.sun_path);
+X
+X    /* put an ear to the socket, listening for a knock-knock-knocking */
+X    listen( sock, 1 );				/* 1: only one queue slot */
+X    /* ear will be a temporary (non-reusable) socket different from sock */
+X    if ( (ear = accept( sock, (struct sockaddr *)NULL, (int *)NULL )) < 0 ) {
+X	perror(argv[0]);
+X	exit(__LINE__);
+X    }
+X
+X    /* read lines and print until the stream closes */
+X    while ( (read_ret = read( ear, buf, sizeof buf )) > 0 )
+X	printf( "\n%s: read from socket as follows:\n(%s)", argv[0], buf ); 
+X
+X    if ( read_ret < 0 ) {
+X	char s[BUFSIZ];
+X	sprintf( s, "%s: error reading socket", argv[0] );
+X	perror(s);
+X	exit(__LINE__);
+X    }
+X
+X   /*
+X    *  lots of things will close automatically: sock, ear;
+X    *  but, this one must be done cleanly:
+X    */
+X
+X    /* rm filename */
+X    unlink( SOCKET_PATH_NAME );
+X
+X    /* loop ended normally:  read() returned NULL */
+X    exit(0);
+X}
+X
+END_OF_FILE
+if test 3092 -ne `wc -c <'sockl.c'`; then
+    echo shar: \"'sockl.c'\" unpacked with wrong size!
+fi
+# end of 'sockl.c'
+fi
+if test -f 'sockl.h' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'sockl.h'\"
+else
+echo shar: Extracting \"'sockl.h'\" \(134 characters\)
+sed "s/^X//" >'sockl.h' <<'END_OF_FILE'
+X/* sockl.h */
+X
+X#ifndef SOCKL_H
+X#define SOCKL_H
+X
+X#define SOCKET_PATH_NAME "sweet_babboo"
+X#define SOCKET_QUEUE_LENGTH SOMAXCONN
+X
+X#endif
+END_OF_FILE
+if test 134 -ne `wc -c <'sockl.h'`; then
+    echo shar: \"'sockl.h'\" unpacked with wrong size!
+fi
+# end of 'sockl.h'
+fi
+if test -f 'sockl.nroff-man' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'sockl.nroff-man'\"
+else
+echo shar: Extracting \"'sockl.nroff-man'\" \(1531 characters\)
+sed "s/^X//" >'sockl.nroff-man' <<'END_OF_FILE'
+X.TH sockl 1
+X.SH Name
+sockl, sockt, isockl, isockt, disockl, disockt \- socket
+demonstration programs
+X.SH Syntax
+X.B "sockl
+X.PP
+X.B "sockt
+X.PP
+X.B "isockl
+X.PP
+X.B "isockt \fIremote_host\fP \fIport_number\fP
+X.PP
+X.B "disockl
+X.PP
+X.B "disockt \fIremote_host\fP \fIport_number\fP
+X.SH Description
+The
+X.B sockl,
+X.B isockl,
+and
+X.B disockl
+programs open sockets and listen for transmission requests.
+X.PP
+The
+X.B sockt,
+X.B isockt,
+and
+X.B disockt
+programs talk to the
+X.B sockl,
+X.B isockl,
+and
+X.B disockl
+processes, respectively.
+X.PP
+X.B sockl
+and
+X.B sockt 
+demonstrate AF_UNIX/SOCK_STREAM connections.
+X.B isockl
+and
+X.B isockt 
+demonstrate AF_INET/SOCK_STREAM connections.
+X.B disockl
+and
+X.B disockt 
+demonstrate AF_INET/SOCK_DGRAM unconnected communications.
+X.PP
+X.B sockl
+and
+X.B isockl
+accept only the first connection.
+X.B disockl
+never closes its socket, since datagrams
+do not contain reliable, intrinsic, end-of-transmission
+information.  The transmitted data is printed to stdout
+with a descriptive wrapper.
+X.PP
+Upon invocation,
+X.B isockl
+and
+X.B disockl
+print the port number of the socket they have opened;
+this is to be used as the
+X.I port_number
+argument to the corresponding talker.
+X.PP
+The talker may be on a machine separate from the
+listener, provided the
+X.I remote_host
+is listed in the talking machine's hosts database
+X(Yellow Pages or the
+X.I /etc/hosts
+file).
+X.SH Files
+X.B /etc/hosts
+X.SH See Also
+socket(2), gethostbyname(3n)
+X.SH Author
+Blair P. Houghton, Intel Corp., Arizona
+X.br
+X(bhoughto@pima.intel.com, uunet!intelhf!pima!bhoughto)
+END_OF_FILE
+if test 1531 -ne `wc -c <'sockl.nroff-man'`; then
+    echo shar: \"'sockl.nroff-man'\" unpacked with wrong size!
+fi
+# end of 'sockl.nroff-man'
+fi
+if test -f 'sockt.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'sockt.c'\"
+else
+echo shar: Extracting \"'sockt.c'\" \(1644 characters\)
+sed "s/^X//" >'sockt.c' <<'END_OF_FILE'
+X/* sockt.c -- open socket and talk into it */
+X/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+X/* distribution permitted with copyright intact.		*/
+X
+X#include <sys/types.h>
+X#include <sys/socket.h>
+X#include <sys/un.h>
+X#include "sockl.h"
+X
+X#ifdef __STDC__
+extern void	perror( char * );
+extern int	bind( int, struct sockaddr *, int );
+extern int	socket( int, int, int );
+extern int	write( int, char *, unsigned );
+extern char *	strcpy( char *, char *b );
+extern int	strlen( char * );
+extern void	exit( int );
+extern int	connect( int, struct sockaddr *, int );
+X#endif
+X
+char *line[] = {
+X    "Mary had a little lamb;\n",
+X    "Her fleece was white as snow;\n",
+X    "And everywhere that Mary went,\n",
+X    "She told everyone that Edison invented the telephone before Bell did.\n"
+X};
+int n_line = 4;
+X
+X#ifdef __STDC__
+void main( int argc, char *argv[] )
+X#else
+main(argc,argv)
+int argc; char *argv[];
+X#endif
+X{
+X
+X    int plug;				/* socket to "plug" into the socket */
+X    struct sockaddr_un socketname;	/* mode and path data for the socket */
+X    extern int n_line;
+X    extern char *line[];
+X    int i;
+X
+X    /* make a local-unix, stream-i/o, protocol-whatever plug */
+X    if ( (plug = socket( AF_UNIX, SOCK_STREAM, 0 )) < 0 )
+X	perror(argv[0]);
+X
+X    /* plug it into the listening socket */
+X    socketname.sun_family = AF_UNIX;
+X    strcpy( socketname.sun_path, SOCKET_PATH_NAME );
+X    if ( connect( plug, (struct sockaddr *) &socketname,
+X		  sizeof socketname ) < 0 ) {
+X	perror(argv[0]);
+X	exit(__LINE__);
+X    }
+X
+X    /* say something into it; something historic */
+X    for ( i = 0; i < n_line; i++ )
+X	write( plug, line[i], strlen(line[i]) );
+X}
+END_OF_FILE
+if test 1644 -ne `wc -c <'sockt.c'`; then
+    echo shar: \"'sockt.c'\" unpacked with wrong size!
+fi
+# end of 'sockt.c'
+fi
+echo shar: End of archive 1 \(of 1\).
+cp /dev/null ark1isdone
+MISSING=""
+for I in 1 ; do
+    if test ! -f ark${I}isdone ; then
+	MISSING="${MISSING} ${I}"
+    fi
+done
+if test "${MISSING}" = "" ; then
+    echo You have the archive.
+    rm -f ark[1-9]isdone
+else
+    echo You still need to unpack the following archives:
+    echo "        " ${MISSING}
+fi
+##  End of shell archive.
+exit 0
+
+

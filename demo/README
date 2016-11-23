@@ -1,0 +1,58 @@
+/* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
+/* distribution permitted with copyright intact.		*/
+
+This package is intended for demonstration and education.
+I've tried to keep the demos as simple as possible while
+implementing the basic functioning of Unix and Internet
+sockets.
+
+Socket demo programs:
+
+    sockl:	Socket Listener.  Creates an AF_UNIX socket (one handled
+		only by the local kernel), listens for and accepts a
+		SOCK_STREAM (reliable, file-i/o-like) connection, and
+		prints the sent data to stdout.  No arguments.  Initially
+		prints data including the port number to be given on the
+		command line when starting sockt.
+    sockt:      Socket Talker.  Connects to an AF_UNIX port given as
+		argument and sends a few lines of text.  The connection
+		is of SOCK_STREAM type.  (This program is impressively
+		simple).
+
+    isockl:     Internet Socket Listener.  Like sockl.c, but opens an
+		AF_INET socket (an Internet communications channel,
+		handled by the ethernet driver).
+    isockt:     Internet Socket Talker.  Like sockt, but takes a machine
+		name as first argument and port number as second argument.
+
+    disockl:    Datagram Internet Socket Listener.  Like isockl, but the
+		communications style is SOCK_DGRAM.
+    disockt:    Datagram Internet Socket Talker.  Like isockt, but the
+		communications style is SOCK_DGRAM.
+
+Make targets include the names of the programs, plus "all",
+"man", "shar", and "clean."  The sources are compiled by
+default with your make(1)'s default cc(1), but can be
+compiled with GNU's gcc in pedantic ANSI mode; however, gcc
+will use whatever (possibly flakey) library it's been
+installed with, so check the results carefully if you do
+use gcc.  It's also compiled cleanly under some real ANSI
+compilers.
+
+Sockets aren't the most portable of code (in fact, ANSI C
+makes no provision for them).  These demos were developed
+under Ultrix and tested on HP/Apollo BSD.  I fixed some
+#include's so it would compile on both systems.
+
+The results when the programs are run are okay on Ultrix
+but disockl bombs immediately on the Apollo; and, strings
+sent over the sockets on the Apollo have grot on the end.
+This was the expected result of the experiment; it has to
+do with the fact that Ultrix and Apollo use different
+structures and semantics for socket data.  If you're using
+Apollos or some other system and these programs don't work
+out of the box, try hacking them to use the TCP/IP structs
+implemented for your machine.
+
+				--Blair
+				  "Class dismissed."

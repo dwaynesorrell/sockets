@@ -1,0 +1,83 @@
+.TH sockl 1
+.SH Name
+sockl, sockt, isockl, isockt, disockl, disockt \- socket
+demonstration programs
+.SH Syntax
+.B "sockl
+.PP
+.B "sockt
+.PP
+.B "isockl
+.PP
+.B "isockt \fIremote_host\fP \fIport_number\fP
+.PP
+.B "disockl
+.PP
+.B "disockt \fIremote_host\fP \fIport_number\fP
+.SH Description
+The
+.B sockl,
+.B isockl,
+and
+.B disockl
+programs open sockets and listen for transmission requests.
+.PP
+The
+.B sockt,
+.B isockt,
+and
+.B disockt
+programs talk to the
+.B sockl,
+.B isockl,
+and
+.B disockl
+processes, respectively.
+.PP
+.B sockl
+and
+.B sockt 
+demonstrate AF_UNIX/SOCK_STREAM connections.
+.B isockl
+and
+.B isockt 
+demonstrate AF_INET/SOCK_STREAM connections.
+.B disockl
+and
+.B disockt 
+demonstrate AF_INET/SOCK_DGRAM unconnected communications.
+.PP
+.B sockl
+and
+.B isockl
+accept only the first connection.
+.B disockl
+never closes its socket, since datagrams
+do not contain reliable, intrinsic, end-of-transmission
+information.  The transmitted data is printed to stdout
+with a descriptive wrapper.
+.PP
+Upon invocation,
+.B isockl
+and
+.B disockl
+print the port number of the socket they have opened;
+this is to be used as the
+.I port_number
+argument to the corresponding talker.
+.PP
+The talker may be on a machine separate from the
+listener, provided the
+.I remote_host
+is listed in the talking machine's hosts database
+(Yellow Pages or the
+.I /etc/hosts
+file).
+.SH Files
+.B /etc/hosts
+.SH See Also
+socket(2), gethostbyname(3n)
+.SH Author
+Blair P. Houghton, Intel Corp., Arizona
+.br
+(bhoughto@pima.intel.com, uunet!intelhf!pima!bhoughto)

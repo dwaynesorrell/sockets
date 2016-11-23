@@ -1,0 +1,13 @@
+   File Name		Archive #	Description
+-----------------------------------------------------------
+ MANIFEST                   1	This shipping list
+ Makefile                   1	
+ README                     1	
+ disockl.c                  1	
+ disockt.c                  1	
+ isockl.c                   1	
+ isockt.c                   1	
+ sockl.c                    1	
+ sockl.h                    1	
+ sockl.nroff-man            1	
+ sockt.c                    1	
