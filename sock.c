@@ -1,6 +1,10 @@
  /*
     code to establish a socket; originally from bzs@bu-cs.bu.edu
-  * ZZ
+  * 
+  *
+  *
+  *  Newest
+  *
  */
 
  int	establish(u_short portnum)

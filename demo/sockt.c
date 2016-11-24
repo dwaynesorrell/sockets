@@ -2,6 +2,8 @@
 /* (C) 1991 Blair P. Houghton, All Rights Reserved, copying and */
 /* distribution permitted with copyright intact.		*/
 
+/*    */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
